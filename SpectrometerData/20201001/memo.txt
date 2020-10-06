@@ -1,2 +1,0 @@
-exposure: 1.5 * 1e2 (ms) (水素のみ。ネオンは覚えてない)
-moter range: 410000~, /5000 , 40times
