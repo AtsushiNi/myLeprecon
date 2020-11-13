@@ -1,5 +1,7 @@
+# -*- coding: utf-8 -*-
 import os
 import shutil
+import xarray as xr
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 
@@ -16,8 +18,8 @@ def init_drive():
 
     drive = GoogleDrive(gauth)
 
-# フォルダ名とファイル名を指定してダウンロード。ファイルパスを返す
-def download_file(dir_name, name):
+# ファイルをダウンロードしてxarrayのデータを返す。ダウンロードファイルは削除
+def download_file(dir_name, file_name):
     global drive
     global save_dir_name
 
@@ -32,7 +34,7 @@ def download_file(dir_name, name):
     dir_id = dirs[0]['id']
 
     # ファイルを取得
-    query = "title = '{0}' and '{1}' in parents".format(name, dir_id)
+    query = "title = '{0}' and '{1}' in parents".format(file_name, dir_id)
     files = drive.ListFile({'q': query}).GetList()
     if len(files) > 2:
         raise Exception('同名ファイルが複数存在します')
@@ -50,7 +52,12 @@ def download_file(dir_name, name):
     # ダウンロード
     file.GetContentFile(os.path.join(save_dir, file['title']))
 
-    return os.path.join(save_dir, file['title'])
+    data_array = xr.open_dataarray(os.path.join(save_dir, file['title']))
+
+    os.remove(os.path.join(save_dir, file['title']))
+
+    return data_array
+
 
 # ダウンロード先にしたファイルを全て削除する
 def delete_download_files():
