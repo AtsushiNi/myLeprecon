@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.6.0
+#       jupytext_version: 1.7.1
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -20,31 +20,30 @@
 # ## ボルツマン分布の作成
 # Fulcher-αのスペクトルを特定できたので、ボルツマン分布を作成した
 
-# + id="0x0bMDFMpjAE" executionInfo={"status": "ok", "timestamp": 1605005909126, "user_tz": -540, "elapsed": 11193, "user": {"displayName": "\u65b0\u6ff1\u6566\u53f2", "photoUrl": "", "userId": "13784546731581030034"}} outputId="ee554c24-20bd-47df-9ab7-0facd295ec7f" colab={"base_uri": "https://localhost:8080/"}
+# + colab={"base_uri": "https://localhost:8080/"} executionInfo={"elapsed": 11193, "status": "ok", "timestamp": 1605005909126, "user": {"displayName": "\u65b0\u6ff1\u6566\u53f2", "photoUrl": "", "userId": "13784546731581030034"}, "user_tz": -540} id="0x0bMDFMpjAE" outputId="ee554c24-20bd-47df-9ab7-0facd295ec7f"
 # !pip install netcdf4 
 # !pip install git+https://github.com/fujiisoup/pyspectra.git
 
+import os
 from os.path import join
 import numpy as np
 import xarray as xr
 import matplotlib.pyplot as plt
 import pyspectra
-from google.colab import drive
 
-drive.mount('/content/drive')
+data_path = join('/', 'Volumes', 'BUFFALO', 'SpectrometerData', '20201006-2')
+print(os.path.exists(data_path))
 
-# + id="zOoKqgHL3h2I" executionInfo={"status": "ok", "timestamp": 1605005909128, "user_tz": -540, "elapsed": 11180, "user": {"displayName": "\u65b0\u6ff1\u6566\u53f2", "photoUrl": "", "userId": "13784546731581030034"}}
-data_dir = join('drive', 'My Drive', '研究室', 'MyLeprecon', 'SpectrometerData', '20201006-2')
-
+# + executionInfo={"elapsed": 11180, "status": "ok", "timestamp": 1605005909128, "user": {"displayName": "\u65b0\u6ff1\u6566\u53f2", "photoUrl": "", "userId": "13784546731581030034"}, "user_tz": -540} id="zOoKqgHL3h2I"
 file_names = [f'H_{430000 + 5000*i}.nc' for i in range(11)]
 data = []
 for file_name in file_names:
-  data_array = xr.open_dataarray(join(data_dir, file_name))
+  data_array = xr.open_dataarray(join(data_path, file_name))
   data_array['motor_coordinate'] = data_array.attrs['motor_coordinate']
   data.append(data_array)
 data = xr.concat(data, dim='motor_coordinate')
 
-# + id="kCVrycczrvgg" executionInfo={"status": "ok", "timestamp": 1605005910158, "user_tz": -540, "elapsed": 12201, "user": {"displayName": "\u65b0\u6ff1\u6566\u53f2", "photoUrl": "", "userId": "13784546731581030034"}} outputId="09563f04-10c2-488d-f7c8-9363613b9439" colab={"base_uri": "https://localhost:8080/", "height": 520}
+# + colab={"base_uri": "https://localhost:8080/", "height": 520} executionInfo={"elapsed": 12201, "status": "ok", "timestamp": 1605005910158, "user": {"displayName": "\u65b0\u6ff1\u6566\u53f2", "photoUrl": "", "userId": "13784546731581030034"}, "user_tz": -540} id="kCVrycczrvgg" outputId="09563f04-10c2-488d-f7c8-9363613b9439"
 plt.figure(figsize=(15, 5))
 long_data = []
 for i, p in enumerate(data['motor_coordinate']):
@@ -54,7 +53,6 @@ for i, p in enumerate(data['motor_coordinate']):
   long_data.append(d.sum('y'))
   plt.plot(d['long_x'], d.sum('y'))
 long_data = xr.concat(long_data, dim='motor_coordinate')
-long_data
 
 
 # + [markdown] id="0zmQKVkb-8KI"
@@ -68,7 +66,7 @@ long_data
 # + [markdown] id="0UipfDUCAcaT"
 # ## 各スペクトルのガウスフィッティング
 
-# + id="mQmW9BsBcPoQ" executionInfo={"status": "ok", "timestamp": 1605005910159, "user_tz": -540, "elapsed": 12189, "user": {"displayName": "\u65b0\u6ff1\u6566\u53f2", "photoUrl": "", "userId": "13784546731581030034"}}
+# + executionInfo={"elapsed": 12189, "status": "ok", "timestamp": 1605005910159, "user": {"displayName": "\u65b0\u6ff1\u6566\u53f2", "photoUrl": "", "userId": "13784546731581030034"}, "user_tz": -540} id="mQmW9BsBcPoQ"
 def fit(da):
   popt, perr = pyspectra.fit.singlepeak_fit(da['x'].values, da.values)
   return xr.Dataset({
@@ -81,12 +79,12 @@ def fit(da):
 # + [markdown] id="0amw2ELRbJdW"
 # ### Q1
 
-# + id="higQ73CrAy_5" executionInfo={"status": "ok", "timestamp": 1605005910160, "user_tz": -540, "elapsed": 12182, "user": {"displayName": "\u65b0\u6ff1\u6566\u53f2", "photoUrl": "", "userId": "13784546731581030034"}} outputId="3a5896ac-73a4-46cc-a773-2237f47e459d" colab={"base_uri": "https://localhost:8080/", "height": 291}
+# + colab={"base_uri": "https://localhost:8080/", "height": 291} executionInfo={"elapsed": 12182, "status": "ok", "timestamp": 1605005910160, "user": {"displayName": "\u65b0\u6ff1\u6566\u53f2", "photoUrl": "", "userId": "13784546731581030034"}, "user_tz": -540} id="higQ73CrAy_5" outputId="3a5896ac-73a4-46cc-a773-2237f47e459d"
 plt.figure(figsize=(30, 5))
 long_data.sel(motor_coordinate=475000).plot()
 plt.xlim(1500, 0)
 
-# + id="HJf_kdnBccno" executionInfo={"status": "ok", "timestamp": 1605006189682, "user_tz": -540, "elapsed": 2313, "user": {"displayName": "\u65b0\u6ff1\u6566\u53f2", "photoUrl": "", "userId": "13784546731581030034"}} outputId="026167c2-5048-4d4a-8026-3df985a0a3df" colab={"base_uri": "https://localhost:8080/", "height": 251}
+# + colab={"base_uri": "https://localhost:8080/", "height": 251} executionInfo={"elapsed": 2313, "status": "ok", "timestamp": 1605006189682, "user": {"displayName": "\u65b0\u6ff1\u6566\u53f2", "photoUrl": "", "userId": "13784546731581030034"}, "user_tz": -540} id="HJf_kdnBccno" outputId="026167c2-5048-4d4a-8026-3df985a0a3df"
 spectrum_lims = [
   [1430, 1500],
   [1300, 1380],
@@ -122,7 +120,7 @@ for i, lims in enumerate(spectrum_lims):
   Q1_result.append(result)
 Q1_result = xr.concat(Q1_result, dim='N')
 
-# + id="8Mx07A5Eej8v" executionInfo={"status": "ok", "timestamp": 1605006030426, "user_tz": -540, "elapsed": 1541, "user": {"displayName": "\u65b0\u6ff1\u6566\u53f2", "photoUrl": "", "userId": "13784546731581030034"}} outputId="ef986504-151c-4e9f-c9c7-2f29dd63bff4" colab={"base_uri": "https://localhost:8080/", "height": 369}
+# + colab={"base_uri": "https://localhost:8080/", "height": 369} executionInfo={"elapsed": 1541, "status": "ok", "timestamp": 1605006030426, "user": {"displayName": "\u65b0\u6ff1\u6566\u53f2", "photoUrl": "", "userId": "13784546731581030034"}, "user_tz": -540} id="8Mx07A5Eej8v" outputId="ef986504-151c-4e9f-c9c7-2f29dd63bff4"
 spectrum_lims = [
   [1430, 1500],
 ]
@@ -155,7 +153,7 @@ plt.fill_between(result['x'], result['fit'], 1086150, facecolor='C1', hatch='x',
 plt.ylim(1.05*1e6, 1.8*1e6)
 plt.savefig(join('drive', 'My Drive', '研究室', 'images','gauss'), bbox_inches='tight')
 
-# + id="1sgq1Y_8kLL1" executionInfo={"status": "ok", "timestamp": 1605006196089, "user_tz": -540, "elapsed": 1502, "user": {"displayName": "\u65b0\u6ff1\u6566\u53f2", "photoUrl": "", "userId": "13784546731581030034"}} outputId="1772a034-7b76-4bd4-bf60-a39ceb5c4b00" colab={"base_uri": "https://localhost:8080/", "height": 392}
+# + colab={"base_uri": "https://localhost:8080/", "height": 392} executionInfo={"elapsed": 1502, "status": "ok", "timestamp": 1605006196089, "user": {"displayName": "\u65b0\u6ff1\u6566\u53f2", "photoUrl": "", "userId": "13784546731581030034"}, "user_tz": -540} id="1sgq1Y_8kLL1" outputId="1772a034-7b76-4bd4-bf60-a39ceb5c4b00"
 plt.figure(figsize=[15, 5])
 plt.subplot(1, 2, 1)
 plt.plot(Q1_result['x0'], Q1_result['wave_length'], marker='o')
@@ -171,11 +169,11 @@ plt.ylabel('area')
 # + [markdown] id="WmtvxcDycXfB"
 # ### Q2
 
-# + id="JsBFvClXp2NG" executionInfo={"status": "ok", "timestamp": 1605006115642, "user_tz": -540, "elapsed": 1691, "user": {"displayName": "\u65b0\u6ff1\u6566\u53f2", "photoUrl": "", "userId": "13784546731581030034"}} outputId="013e47af-f1f2-4353-ea74-a8d3ea284102" colab={"base_uri": "https://localhost:8080/", "height": 310}
+# + colab={"base_uri": "https://localhost:8080/", "height": 310} executionInfo={"elapsed": 1691, "status": "ok", "timestamp": 1605006115642, "user": {"displayName": "\u65b0\u6ff1\u6566\u53f2", "photoUrl": "", "userId": "13784546731581030034"}, "user_tz": -540} id="JsBFvClXp2NG" outputId="013e47af-f1f2-4353-ea74-a8d3ea284102"
 plt.figure(figsize=(30, 5))
 long_data.sel(motor_coordinate=465000).plot()
 
-# + id="AYjYfh9Yp6uQ" executionInfo={"status": "ok", "timestamp": 1605006116793, "user_tz": -540, "elapsed": 2677, "user": {"displayName": "\u65b0\u6ff1\u6566\u53f2", "photoUrl": "", "userId": "13784546731581030034"}} outputId="4f75bf6a-cbfa-4e79-cfda-c311c0d60a9a" colab={"base_uri": "https://localhost:8080/", "height": 252}
+# + colab={"base_uri": "https://localhost:8080/", "height": 252} executionInfo={"elapsed": 2677, "status": "ok", "timestamp": 1605006116793, "user": {"displayName": "\u65b0\u6ff1\u6566\u53f2", "photoUrl": "", "userId": "13784546731581030034"}, "user_tz": -540} id="AYjYfh9Yp6uQ" outputId="4f75bf6a-cbfa-4e79-cfda-c311c0d60a9a"
 spectrum_lims = [
   [1090, 1150],
   [950, 1020],
@@ -207,7 +205,7 @@ for i, lims in enumerate(spectrum_lims):
   Q2_result.append(result)
 Q2_result = xr.concat(Q2_result, dim='N')
 
-# + id="17QFEEzIq795" executionInfo={"status": "ok", "timestamp": 1605006117761, "user_tz": -540, "elapsed": 3240, "user": {"displayName": "\u65b0\u6ff1\u6566\u53f2", "photoUrl": "", "userId": "13784546731581030034"}} outputId="8fb9886c-8906-40a9-a942-34a75d539c0a" colab={"base_uri": "https://localhost:8080/", "height": 392}
+# + colab={"base_uri": "https://localhost:8080/", "height": 392} executionInfo={"elapsed": 3240, "status": "ok", "timestamp": 1605006117761, "user": {"displayName": "\u65b0\u6ff1\u6566\u53f2", "photoUrl": "", "userId": "13784546731581030034"}, "user_tz": -540} id="17QFEEzIq795" outputId="8fb9886c-8906-40a9-a942-34a75d539c0a"
 plt.figure(figsize=[15, 5])
 plt.subplot(1, 2, 1)
 plt.plot(Q2_result['x0'], Q2_result['wave_length'], marker='o')
@@ -223,11 +221,11 @@ plt.ylabel('area')
 # + [markdown] id="azG3lgwYr9e_"
 # ### Q3
 
-# + id="jp_XZFlqsEZ5" executionInfo={"status": "ok", "timestamp": 1605006117762, "user_tz": -540, "elapsed": 2734, "user": {"displayName": "\u65b0\u6ff1\u6566\u53f2", "photoUrl": "", "userId": "13784546731581030034"}} outputId="7320c90c-7117-45e5-926b-132a857fe1c1" colab={"base_uri": "https://localhost:8080/", "height": 310}
+# + colab={"base_uri": "https://localhost:8080/", "height": 310} executionInfo={"elapsed": 2734, "status": "ok", "timestamp": 1605006117762, "user": {"displayName": "\u65b0\u6ff1\u6566\u53f2", "photoUrl": "", "userId": "13784546731581030034"}, "user_tz": -540} id="jp_XZFlqsEZ5" outputId="7320c90c-7117-45e5-926b-132a857fe1c1"
 plt.figure(figsize=(30, 5))
 long_data.sel(motor_coordinate=450000).plot()
 
-# + id="XwIfuYhWttdy" executionInfo={"status": "ok", "timestamp": 1605006118726, "user_tz": -540, "elapsed": 3538, "user": {"displayName": "\u65b0\u6ff1\u6566\u53f2", "photoUrl": "", "userId": "13784546731581030034"}} outputId="6e423d14-2e04-4981-83fa-2004a829ce7b" colab={"base_uri": "https://localhost:8080/", "height": 252}
+# + colab={"base_uri": "https://localhost:8080/", "height": 252} executionInfo={"elapsed": 3538, "status": "ok", "timestamp": 1605006118726, "user": {"displayName": "\u65b0\u6ff1\u6566\u53f2", "photoUrl": "", "userId": "13784546731581030034"}, "user_tz": -540} id="XwIfuYhWttdy" outputId="6e423d14-2e04-4981-83fa-2004a829ce7b"
 spectrum_lims = [
   [1700, 1750],
   [1570, 1610],
@@ -263,7 +261,7 @@ for i, lims in enumerate(spectrum_lims):
   Q3_result.append(result)
 Q3_result = xr.concat(Q3_result, dim='N')
 
-# + id="FURtKob2xc2y" executionInfo={"status": "ok", "timestamp": 1605006118728, "user_tz": -540, "elapsed": 3188, "user": {"displayName": "\u65b0\u6ff1\u6566\u53f2", "photoUrl": "", "userId": "13784546731581030034"}} outputId="86b23713-548d-438a-a7f6-48adfdd769a1" colab={"base_uri": "https://localhost:8080/", "height": 392}
+# + colab={"base_uri": "https://localhost:8080/", "height": 392} executionInfo={"elapsed": 3188, "status": "ok", "timestamp": 1605006118728, "user": {"displayName": "\u65b0\u6ff1\u6566\u53f2", "photoUrl": "", "userId": "13784546731581030034"}, "user_tz": -540} id="FURtKob2xc2y" outputId="86b23713-548d-438a-a7f6-48adfdd769a1"
 plt.figure(figsize=[15, 5])
 plt.subplot(1, 2, 1)
 plt.plot(Q3_result['x0'], Q3_result['wave_length'], marker='o')
@@ -293,7 +291,7 @@ plt.ylabel('area')
 #
 # $g_\mathrm{as}$ : statistical weight for the nuclear symmetry, $g_\mathrm{as} = \mathrm{mod} (N) * 2 + 1$
 
-# + id="dTRmlS5Oa7B2" executionInfo={"status": "ok", "timestamp": 1605006119191, "user_tz": -540, "elapsed": 1281, "user": {"displayName": "\u65b0\u6ff1\u6566\u53f2", "photoUrl": "", "userId": "13784546731581030034"}}
+# + executionInfo={"elapsed": 1281, "status": "ok", "timestamp": 1605006119191, "user": {"displayName": "\u65b0\u6ff1\u6566\u53f2", "photoUrl": "", "userId": "13784546731581030034"}, "user_tz": -540} id="dTRmlS5Oa7B2"
 # d状態の回転エネルギー
 def e_rot(v, N):
   return ((30.364-1.545*(v+1/2))*N*(N+1)-0.0191*N*(N+1)*N*(N+1))*1.23984/1e4
@@ -307,7 +305,7 @@ def g_N(N):
   return (2*N+1)*(2*N+1)
 
 
-# + id="SkTA_SdUfmpH" executionInfo={"status": "ok", "timestamp": 1605006330591, "user_tz": -540, "elapsed": 2400, "user": {"displayName": "\u65b0\u6ff1\u6566\u53f2", "photoUrl": "", "userId": "13784546731581030034"}} outputId="a8fdb4ce-4853-4252-edec-f7f10b61a274" colab={"base_uri": "https://localhost:8080/", "height": 514}
+# + colab={"base_uri": "https://localhost:8080/", "height": 514} executionInfo={"elapsed": 2400, "status": "ok", "timestamp": 1605006330591, "user": {"displayName": "\u65b0\u6ff1\u6566\u53f2", "photoUrl": "", "userId": "13784546731581030034"}, "user_tz": -540} id="SkTA_SdUfmpH" outputId="a8fdb4ce-4853-4252-edec-f7f10b61a274"
 plt.figure(figsize=[10, 8])
 plt.rcParams['font.size'] = 20
 
@@ -333,7 +331,7 @@ plt.ylabel(r"$\frac{I^{dv'N'}_{av''N''}\lambda^{dv'N'}_{av''N''}}{(2N'+1)^2g^{N'
 
 plt.savefig(join('drive', 'My Drive', '研究室', 'images','boltzman'), bbox_inches='tight')
 
-# + id="4QbvGtuDzt-6" executionInfo={"status": "ok", "timestamp": 1605006120252, "user_tz": -540, "elapsed": 1378, "user": {"displayName": "\u65b0\u6ff1\u6566\u53f2", "photoUrl": "", "userId": "13784546731581030034"}} outputId="fafd1dd2-9a56-4cb6-92b0-5bbc492c9ace" colab={"base_uri": "https://localhost:8080/", "height": 337}
+# + colab={"base_uri": "https://localhost:8080/", "height": 337} executionInfo={"elapsed": 1378, "status": "ok", "timestamp": 1605006120252, "user": {"displayName": "\u65b0\u6ff1\u6566\u53f2", "photoUrl": "", "userId": "13784546731581030034"}, "user_tz": -540} id="4QbvGtuDzt-6" outputId="fafd1dd2-9a56-4cb6-92b0-5bbc492c9ace"
 upper_energy = np.arange(200, 1200, 200)
 theory_population = np.exp(-(upper_energy / (8.6171*(1e-5))/300)+7735)
 plt.semilogy(upper_energy, theory_population, '-')
@@ -341,9 +339,9 @@ plt.xlabel('upper energy (eV)')
 plt.ylabel('population')
 plt.title("""(v'-v\")=(1-1) Q branch""")
 
-# + id="Zm7Jo6omjC9e" executionInfo={"status": "ok", "timestamp": 1605006120253, "user_tz": -540, "elapsed": 844, "user": {"displayName": "\u65b0\u6ff1\u6566\u53f2", "photoUrl": "", "userId": "13784546731581030034"}}
+# + executionInfo={"elapsed": 844, "status": "ok", "timestamp": 1605006120253, "user": {"displayName": "\u65b0\u6ff1\u6566\u53f2", "photoUrl": "", "userId": "13784546731581030034"}, "user_tz": -540} id="Zm7Jo6omjC9e"
 
 
 
-# + id="N0_TTXFc0dF6" executionInfo={"status": "ok", "timestamp": 1605006122392, "user_tz": -540, "elapsed": 1050, "user": {"displayName": "\u65b0\u6ff1\u6566\u53f2", "photoUrl": "", "userId": "13784546731581030034"}}
+# + executionInfo={"elapsed": 1050, "status": "ok", "timestamp": 1605006122392, "user": {"displayName": "\u65b0\u6ff1\u6566\u53f2", "photoUrl": "", "userId": "13784546731581030034"}, "user_tz": -540} id="N0_TTXFc0dF6"
 
